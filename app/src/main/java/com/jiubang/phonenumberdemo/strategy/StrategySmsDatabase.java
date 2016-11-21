@@ -5,6 +5,9 @@ package com.jiubang.phonenumberdemo.strategy;
  * @date 16-11-15
  */
 public class StrategySmsDatabase implements IStrategy {
+    
+    private StrategySmsMappingTable mStrategySmsMappingTable;
+    
     @Override
     public void initStrategy() {
         
