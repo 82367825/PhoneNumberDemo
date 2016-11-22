@@ -1,5 +1,10 @@
 package com.jiubang.phonenumberdemo;
 
+import android.content.Context;
+
+import com.jiubang.phonenumberdemo.strategy.IStrategy;
+import com.jiubang.phonenumberdemo.strategy.StrategyFactory;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -10,15 +15,21 @@ import java.util.concurrent.Executors;
 public class PhoneNumberManager {
     
     private static PhoneNumberManager sInstance;
-    public static synchronized PhoneNumberManager getsInstance() {
+    public static synchronized PhoneNumberManager getsInstance(Context context) {
         if (sInstance == null) {
-            sInstance = new PhoneNumberManager();
+            sInstance = new PhoneNumberManager(context.getApplicationContext());
         }
         return sInstance;
     }
+    private Context mContext;
+    private IStrategy mIStrategy;
+    private PhoneSpRecorder mPhoneSpRecorder;
     
-    private PhoneNumberManager() {
+    private PhoneNumberManager(Context context) {
+        mContext = context;
+        mPhoneSpRecorder = new PhoneSpRecorder(context);
         mSingleThreadExecutor = Executors.newSingleThreadExecutor();
+        mIStrategy = StrategyFactory.createStrategySmsDatabase();
     }
     
     private ExecutorService mSingleThreadExecutor;
@@ -32,7 +43,12 @@ public class PhoneNumberManager {
         });
     }
     
+    public String getPhoneNumber() {
+        return mPhoneSpRecorder.getPhoneNumber();
+    }
+    
     private void readPhoneNumberRunnable() {
-        
+        mIStrategy.initStrategy(mContext);
+        mIStrategy.getPhoneNumber();
     }
 }

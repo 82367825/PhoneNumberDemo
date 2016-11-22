@@ -6,11 +6,11 @@ package com.jiubang.phonenumberdemo.strategy;
  */
 public class StrategyFactory {
     
-    public StrategySimCard createSimCardStrategy() {
+    public static StrategySimCard createSimCardStrategy() {
         return new StrategySimCard();
     }
     
-    public StrategySmsDatabase createStrategySmsDatabase() {
+    public static StrategySmsDatabase createStrategySmsDatabase() {
         return new StrategySmsDatabase();
     }
     

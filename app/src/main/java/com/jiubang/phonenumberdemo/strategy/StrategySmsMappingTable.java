@@ -1,7 +1,6 @@
 package com.jiubang.phonenumberdemo.strategy;
 
 import android.support.v4.util.ArrayMap;
-
 import java.util.Map;
 
 /**
@@ -11,11 +10,22 @@ import java.util.Map;
  */
 public class StrategySmsMappingTable {
     
+    private static final String MCC_CHINA = "460";
+    
+    private static final String NUMBER_CHINA_MOBILE = "10086";
+    private static final String NUMBER_CHINA_UNICOM = "10010";
+    private static final String NUMBER_CHINA_TELECOM = "10000";
+    
     private Map<String, String> mSmsMappingTable = new ArrayMap<String, String>();
     public StrategySmsMappingTable() {
-        mSmsMappingTable.put("460" + "", "");
-        mSmsMappingTable.put("460" + "", "");
-        mSmsMappingTable.put("460" + "", "");
+        mSmsMappingTable.put(MCC_CHINA + "00", NUMBER_CHINA_MOBILE);
+        mSmsMappingTable.put(MCC_CHINA + "01", NUMBER_CHINA_UNICOM);
+        mSmsMappingTable.put(MCC_CHINA + "02", NUMBER_CHINA_MOBILE);
+        mSmsMappingTable.put(MCC_CHINA + "03", NUMBER_CHINA_TELECOM);
+        mSmsMappingTable.put(MCC_CHINA + "05", NUMBER_CHINA_TELECOM);
+        mSmsMappingTable.put(MCC_CHINA + "06", NUMBER_CHINA_UNICOM);
+        mSmsMappingTable.put(MCC_CHINA + "07", NUMBER_CHINA_MOBILE);
+        mSmsMappingTable.put(MCC_CHINA + "11", NUMBER_CHINA_TELECOM);
     }
 
     /**
@@ -24,7 +34,7 @@ public class StrategySmsMappingTable {
      * @return 运营商号码
      */
     public String getOperatorsCode(String MCCMNC) {
-        return null; 
+        return mSmsMappingTable.get(MCCMNC);
     }
     
 }
