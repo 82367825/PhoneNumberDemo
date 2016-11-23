@@ -4,10 +4,13 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Handler;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.widget.Toast;
+
+import com.jiubang.phonenumberdemo.PhoneSpRecorder;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author linzewu
@@ -26,21 +29,23 @@ public class StrategySmsDatabase implements IStrategy {
     
     private StrategySmsMappingTable mStrategySmsMappingTable;
     private TelephonyManager mTelephonyManager;
+    private PhoneSpRecorder mPhoneSpRecorder;
     
     @Override
     public void initStrategy(Context context) {
         this.mContext = context;
         mStrategySmsMappingTable = new StrategySmsMappingTable();
         mTelephonyManager = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+        mPhoneSpRecorder = new PhoneSpRecorder(context);
     }
 
     @Override
-    public void getPhoneNumber() {
+    public String getPhoneNumber() {
         String targetAddress = mStrategySmsMappingTable.getOperatorsCode(
                 mTelephonyManager.getSubscriberId().substring(0, 5)
         );
         if (targetAddress == null) {
-            return ;
+            return null;
         }
         ContentResolver contentResolver = mContext.getContentResolver();
         String[] projection = new String[] {DATABASE_KEY_ID, DATABASE_KEY_BODY, 
@@ -49,17 +54,35 @@ public class StrategySmsDatabase implements IStrategy {
         final Cursor cursor = contentResolver.query(SMS_URI, projection, where, null, "date desc");
         try {
             while (cursor.moveToNext()) {
-                String logString =
-                        cursor.getString(cursor.getColumnIndex(DATABASE_KEY_PERSON)) + "/"
-                        + cursor.getString(cursor.getColumnIndex(DATABASE_KEY_ADDRESS)) + "/"
-                        + cursor.getString(cursor.getColumnIndex(DATABASE_KEY_TYPE)) + "/"
-                        + cursor.getString(cursor.getColumnIndex(DATABASE_KEY_BODY));
-                Log.d("Sms", logString);
+                String phoneNumber = 
+                    parseSmsBody(cursor.getString(cursor.getColumnIndex(DATABASE_KEY_BODY)));
+                if (phoneNumber != null && !phoneNumber.equals("")) {
+                    mPhoneSpRecorder.setPhoneNumber(phoneNumber);
+                    return phoneNumber;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             cursor.close();
         }
+        return null;
+    }
+    
+    private String parseSmsBody(String smsBody) {
+        if (smsBody == null || smsBody.equals("")) {
+            return null;
+        }
+        Pattern pattern = Pattern.compile("(?<!\\d)(?:(?:1[358]\\d{9})|(?:861[358]\\d{9}))(?!\\d)");
+        Matcher matcher = pattern.matcher(smsBody);
+        StringBuffer bf = new StringBuffer(64);
+        while (matcher.find()) {
+            bf.append(matcher.group()).append(",");
+        }
+        int len = bf.length();
+        if (len > 0) {
+            bf.deleteCharAt(len - 1);
+        }
+        return bf.toString();
     }
 }

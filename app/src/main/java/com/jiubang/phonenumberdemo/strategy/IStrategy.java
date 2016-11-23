@@ -10,6 +10,6 @@ public interface IStrategy {
     
     void initStrategy(Context context);
     
-    void getPhoneNumber();
+    String getPhoneNumber();
     
 }

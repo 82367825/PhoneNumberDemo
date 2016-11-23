@@ -21,10 +21,11 @@ public class StrategySimCard implements IStrategy {
     }
 
     @Override
-    public void getPhoneNumber() {
+    public String getPhoneNumber() {
         String phoneNumber = mTelephonyManager.getLine1Number();
         if (phoneNumber != null && !phoneNumber.equals("")) {
             mPhoneSpRecorder.setPhoneNumber(phoneNumber);
         }
+        return phoneNumber;
     }
 }
